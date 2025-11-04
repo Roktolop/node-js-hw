@@ -4,7 +4,7 @@ import pino from 'pino-http';
 import 'dotenv/config';
 
 const app = express();
-const PORT = process.env.PORT ?? 3000;
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 
@@ -29,8 +29,8 @@ app.use(
 //GET /notes
 app.get('/notes', (req, res) => {
   res.status(200).json(
-    {"message": "Retrieved all notes"});
-})
+    { "message": "Retrieved all notes" });
+});
 
 //GET /notes/:id
 app.get('/notes/:id', (req, res) => {
@@ -38,16 +38,16 @@ app.get('/notes/:id', (req, res) => {
 
   res.status(200).json(
     { "message": `Retrieved note with ID: ${id}` });
-})
+});
 
 app.get('/test-error', () => {
   throw new Error('Simulated server error');
-})
+});
 
 //Unknown routes handler
 app.use((req, res) => {
   res.status(404).json({ "message": "Route not found" });
-})
+});
 
 //Global error handler
 app.use((err, req, res, next) => {
@@ -57,10 +57,10 @@ app.use((err, req, res, next) => {
   res.status(500).json(
     {
       message: isProd
-      ? "Something went wrong. Please try again later."
+        ? "Something went wrong. Please try again later."
         : err.message,
     });
-})
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
