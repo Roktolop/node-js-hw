@@ -32,8 +32,8 @@ app.get('/notes', (req, res) => {
     { "message": "Retrieved all notes" });
 });
 
-//GET /notes/:id
-app.get('/notes/:noteid', (req, res) => {
+//GET /notes/:noteId
+app.get('/notes/:noteId', (req, res) => {
   const { id } = req.params;
 
   res.status(200).json(
