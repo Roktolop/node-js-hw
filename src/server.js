@@ -5,6 +5,7 @@ import { connectMongoDB } from './db/connectMongoDB.js';
 import { notFoundHandler } from './middleware/notFoundHandler.js';
 import { logger } from './middleware/logger.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import notesRoutes from './routes/notesRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,19 +16,8 @@ app.use(express.json());
 app.use(cors());
 app.use(logger());
 
-//GET /notes
-app.get('/notes', (req, res) => {
-  res.status(200).json(
-    { "message": "Retrieved all notes" });
-});
 
-//GET /notes/:noteId
-app.get('/notes/:noteId', (req, res) => {
-  const { noteId } = req.params;
-
-  res.status(200).json(
-    { "message": `Retrieved note with ID: ${noteId}` });
-});
+app.use(notesRoutes);
 
 //Unknown routes handler
 app.use(notFoundHandler);
