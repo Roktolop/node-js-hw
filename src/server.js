@@ -16,7 +16,7 @@ app.use(express.json());
 app.use(cors());
 app.use(logger());
 
-
+// Routes
 app.use(notesRoutes);
 
 //Unknown routes handler

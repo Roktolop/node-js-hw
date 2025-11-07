@@ -15,6 +15,5 @@ export const getNoteById = async (req, res) => {
   if (!note) {
     return res.status(404).json({message: 'Note not found' });
   }
-  res.status(200).json(
-    { "message": `Retrieved note with ID: ${noteId}` });
+  res.status(200).json(note);
 };
