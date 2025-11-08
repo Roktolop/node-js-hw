@@ -1,6 +1,7 @@
 import { HttpError } from 'http-errors';
 
 export const errorHandler = (err, req, res, next) => {
+  console.log(`Error middleware ${err}`);
 
   // Check if the error is create by method createHttpError
   if (err instanceof HttpError) {
