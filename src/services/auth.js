@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import { FIFTEEN_MINUTES, ONE_DAY } from '../constants/time.js';
 import { Session } from '../models/session.js';
 
+// Create a new session for the user
 export const createSession = async(userId) => {
   const accessToken = crypto.randomBytes(16).toString('base64');
   const refreshToken = crypto.randomBytes(16).toString('base64');
@@ -29,7 +30,7 @@ export const setSessionCookies = (res, session) => {
     sameSite: 'none',
     maxAge: ONE_DAY,
   });
-  res.cookie('userId', session._id, {
+  res.cookie('sessionId', session._id, {
     httpOnly: true,
     secure: true,
     sameSite: 'none',
