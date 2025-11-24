@@ -54,7 +54,7 @@ export const loginUser = async (req, res, next) => {
 };
 
 // Controller function to handle session refresh
-export const refreshSession = async (req, res, next) => {
+export const refreshUserSession = async (req, res, next) => {
   const { sessionId, refreshToken } = req.cookies;
 
   const session = await Session.findOne({
@@ -65,8 +65,8 @@ export const refreshSession = async (req, res, next) => {
     return next(createHttpError(401, 'Session not found'));
   }
 
-  const isdRefreshTokenExpired = session.refreshTokenValidUntil > new Date();
-  if (!isdRefreshTokenExpired) {
+  const isRefreshTokenExpired = session.refreshTokenValidUntil > new Date();
+  if ( isRefreshTokenExpired) {
     return next(createHttpError(401, 'Refresh token expired'));
   }
 
