@@ -7,6 +7,7 @@ import { logger } from './middleware/logger.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import notesRoutes from './routes/notesRoutes.js';
 import authRoutes from './routes/authRoutes.js';
+import userRoutes from './routes/UserRoutes.js';
 import { errors } from 'celebrate';
 import cookieParser from 'cookie-parser';
 
@@ -23,6 +24,7 @@ app.use(logger());
 // Routes
 app.use(authRoutes);
 app.use(notesRoutes);
+app.use(userRoutes);
 
 //Unknown routes handler
 app.use(notFoundHandler);
