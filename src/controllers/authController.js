@@ -3,6 +3,11 @@ import createHttpError from 'http-errors';
 import { User } from '../models/user.js';
 import { createSession, setSessionCookies } from '../services/auth.js';
 import { Session } from '../models/session.js';
+import jwt from 'jsonwebtoken';
+import { sendMail } from '../utils/sendMail.js';
+import path from 'node:path';
+import fs from 'node:fs/promises';
+import handlebars from 'handlebars';
 
 // Controller function to handle user registration
 export const registerUser = async (req, res, next) => {
@@ -13,16 +18,13 @@ export const registerUser = async (req, res, next) => {
     return next(createHttpError(400, 'Email is already in use'));
   }
 
-  // Hash the password before saving
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  // Create and save the new user
   const newUser = await User.create({
     email,
     password: hashedPassword,
   });
 
-  // Create a session for the new user
   const newSession = await createSession(newUser._id);
   setSessionCookies(res, newSession);
 
@@ -43,10 +45,8 @@ export const loginUser = async (req, res, next) => {
     return next(createHttpError(401, 'Invalid credentials'));
   }
 
-  // Delete old session and create a session for the logged-in user
   await Session.deleteOne({ userId: user._id });
 
-  //Create a new session
   const newSession = await createSession(user._id);
   setSessionCookies(res, newSession);
 
@@ -65,7 +65,7 @@ export const refreshUserSession = async (req, res, next) => {
     return next(createHttpError(401, 'Session not found'));
   }
 
-  const isRefreshTokenExpired = session.refreshTokenValidUntil > new Date();
+  const isRefreshTokenExpired = new Date() > new Date(session.refreshTokenValidUntil);
   if ( isRefreshTokenExpired) {
     return next(createHttpError(401, 'Refresh token expired'));
   }
@@ -96,3 +96,43 @@ export const logoutUser = async (req, res, next) => {
   res.status(204).send();
 };
 
+// Controller function to handle password reset request
+export const requestResetEmail = async(req, res, next) => {
+  const { email } = req.body;
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    return res.status(200).json({ message: "Password reset email sent successfully." });
+  }
+
+  const resetToken = jwt.sign({ sub: user._id },
+    process.env.JWT_SECRET,
+    { expiresIn: '15m' }
+  );
+
+  // Construct reset link (assuming frontend URL is stored in env variable)
+  const templatePath = path.resolve("/src/emplates/reset-password-email.html");
+
+  const templateSource = await fs.readFile(templatePath, 'utf-8');
+
+  const template = handlebars.compile(templateSource);
+
+  const html = template({
+    name: user.username,
+    link: `${process.env.FRONTEND_DOMAIN}/reset-password?token=${resetToken}`
+  });
+
+  try {
+    await sendMail({
+      from: process.env.SMTP_FROM,
+      to: email,
+      subject: "Reset your password",
+      html,
+    });
+  } catch {
+    next(createHttpError(500, 'Failed to send the email, please try again later.'));
+    return;
+  }
+
+  res.status(200).json({ message: "Password reset email sent successfully." });
+};
