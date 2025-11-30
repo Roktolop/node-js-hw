@@ -1,10 +1,13 @@
-import { celebrate } from "celebrate";
 import { Router } from "express";
-import { requestResetEmailSchema } from "../validations/authValidation.js";
-import { requestResetEmail } from "../controllers/authController.js";
+import { authenticate } from "../middleware/authenticate.js";
+import { updateUserAvatar } from "../controllers/userController.js";
+import { upload } from "../middleware/multer.js";
 
 const router = Router();
 
-router.post('/auth/request-reset-email', celebrate(requestResetEmailSchema), requestResetEmail);
+router.patch("/users/me/avatar",
+  authenticate,
+  upload.single("imageForAvatar"),
+  updateUserAvatar);
 
 export default router;
